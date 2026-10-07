@@ -14,13 +14,13 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://YOUR-BACKEND-HOST"
+        "EXPO_PUBLIC_API_URL": "https://taskline-api-7gr3.onrender.com"
       }
     },
     "production": {
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://YOUR-BACKEND-HOST"
+        "EXPO_PUBLIC_API_URL": "https://taskline-api-7gr3.onrender.com"
       }
     }
   }

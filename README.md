@@ -12,9 +12,9 @@ A project and task manager with a **React web app** and an **Android app (Expo /
 Live links (fill in after deploying, see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)):
 
 - Web app: `https://…`
-- API: `https://…/api/health`
+- API: https://taskline-api-7gr3.onrender.com/api/health
 - Android APK: `https://expo.dev/…`
-- Interactive API docs: `https://…/api/docs`
+- Interactive API docs: https://taskline-api-7gr3.onrender.com/api/docs
 
 | Web (dashboard) | Mobile (project) |
 | --- | --- |
