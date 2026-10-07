@@ -14,6 +14,9 @@
   background: #1e1c18;
   color: #f4f1ea;
   overflow: hidden;
+  /* The panel is always dark, so flip the logo's colours to keep its tile visible in light mode. */
+  --ink: #f4f1ea;
+  --bg: #1e1c18;
 }
 
 /* faint ruled paper lines */
@@ -62,22 +65,10 @@
   color: rgba(244, 241, 234, 0.7);
 }
 
-.ledger {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.footnote {
   font-family: var(--font-mono);
-  font-size: 0.82rem;
-  color: rgba(244, 241, 234, 0.75);
-}
-.ledger li {
-  display: flex;
-  gap: 12px;
-  padding: 9px 0;
-  border-top: 1px solid rgba(244, 241, 234, 0.12);
-}
-.ledger li span:first-child {
-  color: #e7774a;
+  font-size: 0.78rem;
+  color: rgba(244, 241, 234, 0.45);
 }
 
 .formSide {
@@ -122,7 +113,7 @@
     padding: 28px 20px;
     gap: 20px;
   }
-  .ledger {
+  .footnote {
     display: none;
   }
   .pitch h1 {

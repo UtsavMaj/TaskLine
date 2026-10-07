@@ -18,17 +18,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
           </h1>
           <p>Projects, tasks and progress in one place, on the web and on your phone with the same account.</p>
         </div>
-        <ul className={styles.ledger} aria-hidden>
-          <li>
-            <span>✓</span> Design login screen
-          </li>
-          <li>
-            <span>✓</span> Wire up the API
-          </li>
-          <li>
-            <span>○</span> Record the demo video
-          </li>
-        </ul>
+        <p className={styles.footnote}>© {new Date().getFullYear()} Taskline</p>
       </aside>
       <div className={styles.formSide}>{children}</div>
     </div>

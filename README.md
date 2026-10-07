@@ -11,7 +11,7 @@ A project and task manager with a **React web app** and an **Android app (Expo /
 
 Live links (fill in after deploying, see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)):
 
-- Web app: `https://…`
+- Web app: https://task-line-omega.vercel.app
 - API: https://taskline-api-7gr3.onrender.com/api/health
 - Android APK: `https://expo.dev/…`
 - Interactive API docs: https://taskline-api-7gr3.onrender.com/api/docs
