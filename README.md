@@ -13,7 +13,8 @@ Live links (deployment steps in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)):
 
 - Web app: https://task-line-omega.vercel.app
 - API: https://taskline-api-7gr3.onrender.com/api/health
-- Android APK: https://expo.dev/accounts/utsavmajumdar/projects/taskline/builds/cddd4488-e2b3-4683-9e26-a7ecd6d5fc51
+- Android APK (direct download): https://expo.dev/artifacts/eas/ZAZ2OLFZ94sgY0v4fj6NP1SCDeOpfKlCB72xPF_CoR4.apk
+- Android install page (QR code): https://expo.dev/accounts/utsavmajumdar/projects/taskline/builds/cddd4488-e2b3-4683-9e26-a7ecd6d5fc51
 - Interactive API docs: https://taskline-api-7gr3.onrender.com/api/docs
 
 | Web (dashboard) | Mobile (project) |
