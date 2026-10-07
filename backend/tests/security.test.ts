@@ -50,3 +50,32 @@ describe('HTTP hardening', () => {
     expect(JSON.stringify(broken.body)).not.toMatch(/stack|at .*\.js/);
   });
 });
+
+describe('API documentation', () => {
+  it('serves an OpenAPI 3.1 document covering every endpoint', async () => {
+    const res = await api().get('/api/openapi.json').expect(200);
+    expect(res.body.openapi).toBe('3.1.0');
+    expect(Object.keys(res.body.paths)).toEqual(
+      expect.arrayContaining([
+        '/auth/register',
+        '/auth/login',
+        '/auth/logout',
+        '/auth/me',
+        '/projects',
+        '/projects/{id}',
+        '/tasks',
+        '/tasks/{id}',
+        '/dashboard',
+      ]),
+    );
+    // Request bodies come from the shared zod schemas.
+    const projectBody = res.body.paths['/projects'].post.requestBody.content['application/json'].schema;
+    expect(projectBody.required).toEqual(['name']);
+    expect(projectBody.properties.status.enum).toEqual(['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED']);
+  });
+
+  it('renders Swagger UI', async () => {
+    const res = await api().get('/api/docs/').expect(200);
+    expect(res.text).toContain('swagger-ui');
+  });
+});

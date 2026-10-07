@@ -37,3 +37,10 @@ export function formatDate(value: string | null | undefined, fallback = '—'): 
   if (!y || !m || !d) return fallback;
   return `${d} ${MONTHS[m - 1]} ${y}`;
 }
+
+/** ISO timestamp -> "8 Oct 2026" in the viewer's local time zone (unlike formatDate, which is for calendar dates). */
+export function formatTimestampDate(iso: string | null | undefined, fallback = '—'): string {
+  if (!iso) return fallback;
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? fallback : formatDate(todayLocal(date), fallback);
+}

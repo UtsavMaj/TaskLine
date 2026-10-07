@@ -10,6 +10,6 @@ export default async function setup() {
   execSync('npx prisma migrate deploy', { stdio: 'inherit', env: { ...process.env, DATABASE_URL: url } });
 
   const prisma = new PrismaClient({ datasourceUrl: url });
-  await prisma.$executeRawUnsafe('TRUNCATE TABLE audit_logs, sessions, tasks, projects, users CASCADE');
+  await prisma.$executeRawUnsafe('TRUNCATE TABLE push_tokens, audit_logs, sessions, tasks, projects, users CASCADE');
   await prisma.$disconnect();
 }

@@ -224,4 +224,8 @@ export const api = {
   deleteTask: (id: string) => request<void>(`/tasks/${id}`, { method: 'DELETE' }),
 
   activity: (page = 1) => request<Paginated<AuditLogEntry>>('/audit-logs', { query: { page, limit: 20 } }),
+
+  registerPushToken: (token: string, timezone: string) =>
+    request<void>('/push-tokens', { method: 'POST', body: { token, timezone } }),
+  removePushToken: (token: string) => request<void>('/push-tokens', { method: 'DELETE', body: { token } }),
 };

@@ -74,6 +74,22 @@ Requirements: a free Expo account and `npm i -g eas-cli` (or use `npx eas-cli@la
 
 The `preview` profile builds a standalone APK (`buildType: apk`), so no Play Store is needed.
 
+### 3b. Real push notifications (optional bonus)
+
+Push reminders need two one-time setups. Without them, the APK still works and schedules the "due tomorrow" reminder on the phone instead.
+
+1. **Link the app to Expo.** `eas init` (step 2 above) writes `extra.eas.projectId` into `mobile/app.json`. Commit that change. The app needs the id to get a push token.
+2. **Firebase (Android delivery).** Expo sends Android pushes through Firebase Cloud Messaging:
+   - Create a free project at <https://console.firebase.google.com>, add an **Android app** with package name `dev.taskline.app`, and download `google-services.json` into `mobile/`. It's not a secret and can be committed. `mobile/app.config.js` picks it up automatically.
+   - Firebase → Project settings → **Service accounts** → *Generate new private key*. Then run `eas credentials` → Android → `dev.taskline.app` → **Google Service Account Key for FCM V1** → upload that JSON file. Don't commit the key.
+3. Rebuild the APK (`eas build -p android --profile preview`). Then in the app: **Account → Tasks due tomorrow → on**. The status line changes to *"Push notification from the server…"*.
+
+To see a push straight away, give a task tomorrow's due date and set `REMINDER_HOUR` to the current hour on the API. Then trigger the job:
+
+```bash
+curl -X POST https://<your-api>/api/jobs/due-reminders -H "x-cron-secret: <CRON_SECRET>"
+```
+
 ## 4. Running the mobile app against the deployed backend (no build)
 
 For a quick check with **Expo Go** on a real phone:
@@ -88,7 +104,18 @@ Scan the QR code with Expo Go (Android). The app uses the deployed API, so signi
 
 > Everything works in Expo Go except the optional "due tomorrow" reminders: Expo Go on Android no longer ships notification support (SDK 53+), so that switch is disabled there. The APK from step 3 includes it.
 
-## 5. Everything with Docker (one machine)
+## 5. GitHub Actions secrets (CI/CD)
+
+Repository → Settings → Secrets and variables → **Actions**. Each one is optional. A workflow skips its step when its secret is missing.
+
+| Secret | Used by | Value |
+| --- | --- | --- |
+| `RENDER_DEPLOY_HOOK_URL` | `ci.yml` → deploy job | Render → taskline-api → Settings → *Deploy Hook*. Then turn **Auto-Deploy off** so only commits that pass CI are deployed |
+| `API_URL` | `due-reminders.yml` | `https://<your-api>.onrender.com` |
+| `CRON_SECRET` | `due-reminders.yml` | same value as the API's `CRON_SECRET` (Render generates one from `render.yaml`; copy it from the service's *Environment* tab) |
+| `EXPO_TOKEN` | `mobile-build.yml` | expo.dev → Account settings → **Access tokens** |
+
+## 6. Everything with Docker (one machine)
 
 ```bash
 docker compose up --build

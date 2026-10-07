@@ -14,6 +14,13 @@ Live links (fill in after deploying, see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md
 - Web app: `https://…`
 - API: `https://…/api/health`
 - Android APK: `https://expo.dev/…`
+- Interactive API docs: `https://…/api/docs`
+
+| Web (dashboard) | Mobile (project) |
+| --- | --- |
+| ![Web dashboard](docs/screenshots/web-dashboard.png) | <img src="docs/screenshots/mobile-project.png" alt="Mobile project screen" width="260"> |
+
+More screenshots are [below](#screenshots).
 
 ---
 
@@ -36,9 +43,11 @@ Live links (fill in after deploying, see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md
 - Role-based access control (`ADMIN`-only `/api/admin/users`)
 - Validation shared between web, mobile and backend (one set of Zod schemas)
 - Offline viewing on mobile (last loaded data is kept on the device)
-- "Due tomorrow" reminder notifications on mobile (local notifications, opt-in)
-- Unit and integration tests (108 tests across shared, backend and web)
-- Docker (`docker compose up`), GitHub Actions CI
+- **Push notifications for tasks due tomorrow**: the phone registers its Expo push token, and the backend sends one push at 6 pm *in the phone's time zone* listing open tasks due the next day (opt-in, cleaned up on sign-out)
+- Interactive API docs (Swagger UI at `/api/docs`, generated from the same Zod schemas the API validates with)
+- Unit and integration tests (122 tests across shared, backend and web)
+- Docker (`docker compose up`)
+- CI/CD with GitHub Actions: tests + Docker builds on every push, deploy to Render only when they pass, a reminder job every 30 minutes, and a one-click Android APK build
 
 ## Repository layout
 
@@ -50,7 +59,8 @@ taskline/
 │   │   ├── config/     env validation
 │   │   ├── lib/        prisma client, logger, tokens, password, serializers, audit
 │   │   ├── middleware/ authenticate, requireRole, validate, rate limits, error handler
-│   │   ├── modules/    auth, projects, tasks, dashboard, audit, admin (routes → controller → service)
+│   │   ├── modules/    auth, projects, tasks, dashboard, audit, admin, notifications (routes → controller → service)
+│   │   ├── docs/       OpenAPI spec served at /api/docs
 │   │   └── routes/     /api router
 │   └── tests/          integration tests against a real PostgreSQL database
 ├── web/                React app (Vite)
@@ -122,6 +132,10 @@ Every variable is validated at startup ([`src/config/env.ts`](backend/src/config
 | `AUTH_RATE_LIMIT_WINDOW_MINUTES` | `15` | rate-limit window for auth routes |
 | `API_RATE_LIMIT_MAX` | `300` | requests per IP per minute for all API routes |
 | `LOG_LEVEL` | `info` | `fatal` … `trace`, or `silent` |
+| `REMINDER_HOUR` | `18` | local hour (in each phone's time zone) when "due tomorrow" pushes go out |
+| `REMINDER_SCHEDULER` | `true` | check for due reminders every 15 min inside the API process |
+| `CRON_SECRET` | – (endpoint off) | enables `POST /api/jobs/due-reminders` for an external cron (header `x-cron-secret`) |
+| `EXPO_ACCESS_TOKEN` | – | only if "enhanced push security" is turned on in your Expo project |
 
 ### Web (`web/.env`)
 
@@ -139,7 +153,8 @@ Every variable is validated at startup ([`src/config/env.ts`](backend/src/config
 ## Documentation
 
 - **[API reference](docs/API.md)**: every endpoint, parameters, responses and error codes
-- **[Database](docs/DATABASE.md)**: ER diagram, constraints, setup and seed
+- **Swagger UI** at `/api/docs` (raw spec at `/api/openapi.json`): try every endpoint from the browser
+- **[Database](docs/DATABASE.md)**: ER diagram, constraints, setup and seed. The full schema as plain SQL is in [docs/schema.sql](docs/schema.sql)
 - **[Deployment](docs/DEPLOYMENT.md)**: Render + Vercel + EAS (APK), and running the mobile app against the deployed backend
 
 ## How it works
@@ -195,7 +210,7 @@ HTTP requests are logged with **pino-http** (method, URL, status, duration, requ
 - **Navigation:** Expo Router with `Stack.Protected`. Signed-out users can only reach `(auth)`, signed-in users only `(app)`, so an expired session lands on the login screen wherever the user was.
 - **Pull-to-refresh** on the dashboard, project list, project tasks and all-tasks list. Lists load more pages as you scroll.
 - **No network:** NetInfo drives an offline banner. Requests fail fast with a friendly message and a *Try again* button instead of a blank screen. The last loaded data stays visible because the query cache is persisted to the device.
-- **Reminders (optional):** turn on *Tasks due tomorrow* in the Account tab to get a local notification at 6 pm listing open tasks due the next day. This needs the installed APK; Expo Go on Android doesn't include notifications, so the switch is disabled there.
+- **Push reminders (optional):** turning on *Tasks due tomorrow* in the Account tab registers the phone's Expo push token with the API (`POST /api/push-tokens`, with the phone's time zone). The backend job (`modules/notifications`) runs every 15 minutes or from a cron. Once it's 6 pm on a phone, it sends that phone one push listing the user's open tasks due tomorrow. Tapping the push opens the task list. Each device is "claimed" for the day with a conditional update, so overlapping runs never send twice. Tokens Expo reports as dead are deleted, and tokens are tied to the session, so signing out stops reminders. If no EAS project id is configured yet, the app falls back to scheduling the same notification on the phone. Notifications need the installed APK: Expo Go on Android doesn't include them, so the switch is disabled there.
 
 ## Tests
 
@@ -213,7 +228,31 @@ TEST_DATABASE_URL=postgresql://taskline:taskline@localhost:5432/taskline_test np
 
 The backend suite (`backend/tests`) migrates the test database, then exercises the real HTTP stack with Supertest. It covers registration and login, token expiry, forged and `alg: none` tokens, refresh rotation and reuse detection, logout, project and task CRUD, every validation rule, search, filters, sorting, pagination, ownership isolation between two users, dashboard numbers, audit logs, RBAC, rate limiting, CORS and security headers.
 
-Current status: **77 backend + 21 shared + 10 web tests passing**. CI runs all of them on every push (`.github/workflows/ci.yml`).
+Current status: **89 backend + 23 shared + 10 web tests passing**. CI runs all of them on every push (`.github/workflows/ci.yml`).
+
+## CI/CD
+
+| Workflow | Trigger | What it does |
+| --- | --- | --- |
+| [`ci.yml`](.github/workflows/ci.yml) | every push / PR | install, typecheck all 4 packages, run every test suite against PostgreSQL, build API + web, build both Docker images, then (on `main`) trigger the Render deploy hook |
+| [`due-reminders.yml`](.github/workflows/due-reminders.yml) | every 30 min | calls `POST /api/jobs/due-reminders` so pushes go out even when a free server is asleep |
+| [`mobile-build.yml`](.github/workflows/mobile-build.yml) | manual | builds the Android APK on EAS |
+
+Repository secrets they use (all optional, each workflow skips its step when unset): `RENDER_DEPLOY_HOOK_URL`, `API_URL`, `CRON_SECRET`, `EXPO_TOKEN`.
+
+## Screenshots
+
+| Sign in | Projects | Project and its tasks |
+| --- | --- | --- |
+| ![Login](docs/screenshots/web-login.png) | ![Projects](docs/screenshots/web-projects.png) | ![Project](docs/screenshots/web-project.png) |
+
+| Validation in the task form | Dark mode |
+| --- | --- |
+| ![Task form](docs/screenshots/web-task-form.png) | ![Dark dashboard](docs/screenshots/web-dashboard-dark.png) |
+
+| Mobile: sign in | Dashboard | Projects | Project tasks | Edit task |
+| --- | --- | --- | --- | --- |
+| ![](docs/screenshots/mobile-login.png) | ![](docs/screenshots/mobile-dashboard.png) | ![](docs/screenshots/mobile-projects.png) | ![](docs/screenshots/mobile-project.png) | ![](docs/screenshots/mobile-task-edit.png) |
 
 ## Design decisions worth mentioning
 

@@ -3,6 +3,7 @@
 //   users 1 ── * projects 1 ── * tasks
 //   users 1 ── * sessions        (one row per signed-in device, holds the hashed refresh token)
 //   users 1 ── * audit_logs
+//   users 1 ── * push_tokens     (one per phone that opted in to reminders; also tied to its session)
 //
 // Tasks reach their owner through project_id -> projects.user_id, so ownership is stored
 // exactly once (3NF). Deleting a user or a project cascades to everything below it.
@@ -50,9 +51,10 @@ model User {
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  projects  Project[]
-  sessions  Session[]
-  auditLogs AuditLog[]
+  projects   Project[]
+  sessions   Session[]
+  auditLogs  AuditLog[]
+  pushTokens PushToken[]
 
   @@map("users")
 }
@@ -111,10 +113,32 @@ model Session {
   createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
   lastUsedAt        DateTime  @default(now()) @map("last_used_at") @db.Timestamptz(3)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pushTokens PushToken[]
 
   @@index([userId])
   @@map("sessions")
+}
+
+// An Expo push token for one installed copy of the mobile app. Linked to the session that
+// registered it, so signing out (or the session expiring) stops notifications to that phone.
+model PushToken {
+  id             String    @id @default(uuid()) @db.Uuid
+  userId         String    @map("user_id") @db.Uuid
+  sessionId      String?   @map("session_id") @db.Uuid
+  token          String    @unique @db.VarChar(255)
+  timezone       String    @default("UTC") @db.VarChar(64)
+  // Local calendar day of the last "due tomorrow" reminder, so a device gets at most one per day.
+  lastNotifiedOn DateTime? @map("last_notified_on") @db.Date
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session Session? @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([sessionId])
+  @@map("push_tokens")
 }
 
 model AuditLog {

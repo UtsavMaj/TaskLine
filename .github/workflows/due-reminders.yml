@@ -1,0 +1,27 @@
+name: Due-tomorrow reminders
+
+# Calls the API's reminder job every 30 minutes. Needed on hosts that sleep when idle
+# (Render free tier), where the in-process scheduler can't run on time.
+# Repository secrets: API_URL (e.g. https://taskline-api.onrender.com) and CRON_SECRET
+# (same value as the API's CRON_SECRET env var).
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger reminder job
+        env:
+          API_URL: ${{ secrets.API_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$API_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "API_URL / CRON_SECRET secrets not set, nothing to do."
+            exit 0
+          fi
+          # A sleeping free instance can take ~50s to wake up, hence the generous timeout.
+          curl -fsS --max-time 120 -X POST "$API_URL/api/jobs/due-reminders" -H "x-cron-secret: $CRON_SECRET"

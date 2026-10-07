@@ -22,6 +22,8 @@ export default defineConfig({
       API_RATE_LIMIT_MAX: '10000',
       CORS_ORIGINS: 'http://localhost:5173',
       LOG_LEVEL: 'silent',
+      REMINDER_SCHEDULER: 'false',
+      CRON_SECRET: 'test-cron-secret-0123456789',
     },
   },
 });

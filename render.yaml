@@ -29,3 +29,5 @@ services:
         value: lax # the web app proxies /api through vercel.json, so cookies are first-party
       - key: TRUST_PROXY
         value: '1' # Render's load balancer sits in front of the app
+      - key: CRON_SECRET
+        generateValue: true # copy it into the GitHub secret CRON_SECRET for the reminder workflow

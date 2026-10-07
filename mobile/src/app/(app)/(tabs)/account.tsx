@@ -4,7 +4,7 @@ import { Alert, Platform, ScrollView, StyleSheet, Switch, Text, View } from 'rea
 import { Button, Card, SectionLabel } from '@/components/ui';
 import { useAuth } from '@/lib/auth';
 import { API_URL } from '@/lib/config';
-import { remindersEnabled, remindersSupported, setRemindersEnabled } from '@/lib/reminders';
+import { reminderMode, remindersEnabled, remindersSupported, setRemindersEnabled } from '@/lib/reminders';
 import { space, type, useColors } from '@/lib/theme';
 
 export default function AccountScreen() {
@@ -12,14 +12,17 @@ export default function AccountScreen() {
   const { user, logout } = useAuth();
   const [signingOut, setSigningOut] = useState(false);
   const [reminders, setReminders] = useState(false);
+  const [mode, setMode] = useState<'push' | 'local' | null>(null);
 
   useEffect(() => {
     remindersEnabled().then(setReminders);
+    reminderMode().then(setMode);
   }, []);
 
   const toggleReminders = async (next: boolean) => {
     const result = await setRemindersEnabled(next);
     setReminders(result);
+    setMode(await reminderMode());
     if (next && !result) {
       Alert.alert('Notifications are off', 'Allow notifications for Taskline in your phone settings to get reminders.');
     }
@@ -63,9 +66,11 @@ export default function AccountScreen() {
           <View style={{ flex: 1, gap: 2 }}>
             <Text style={{ color: c.ink, fontWeight: '600', fontSize: 15 }}>Tasks due tomorrow</Text>
             <Text style={{ color: c.ink2, fontSize: 13 }}>
-              {remindersSupported
-                ? 'A notification at 6 pm the evening before.'
-                : 'Available in the installed app (APK). Expo Go doesn’t support notifications.'}
+              {!remindersSupported
+                ? 'Available in the installed app (APK). Expo Go doesn’t support notifications.'
+                : reminders && mode === 'push'
+                  ? 'Push notification from the server at 6 pm the evening before.'
+                  : 'A notification at 6 pm the evening before.'}
             </Text>
           </View>
           <Switch

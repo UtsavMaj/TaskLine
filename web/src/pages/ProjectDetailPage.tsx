@@ -1,4 +1,4 @@
-import { formatDate, type CreateProjectData } from '@taskline/shared';
+import { formatDate, formatTimestampDate, type CreateProjectData } from '@taskline/shared';
 import { ArrowLeft, CalendarRange, Clock3, Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
@@ -97,7 +97,7 @@ export function ProjectDetailPage() {
               </span>
               <span>
                 <Clock3 size={15} />
-                Created {formatDate(p.createdAt)}
+                Created {formatTimestampDate(p.createdAt)}
               </span>
             </div>
           </div>

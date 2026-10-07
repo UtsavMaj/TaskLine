@@ -1,12 +1,16 @@
-import { Stack } from 'expo-router';
+import { Stack, useRouter, type Href } from 'expo-router';
 import { useEffect } from 'react';
 import { AppState } from 'react-native';
 
-import { syncReminders } from '@/lib/reminders';
+import { onReminderTapped, syncReminders } from '@/lib/reminders';
 import { useColors } from '@/lib/theme';
 
 export default function AppLayout() {
   const c = useColors();
+  const router = useRouter();
+
+  // Tapping a "due tomorrow" notification opens the task list.
+  useEffect(() => onReminderTapped((url) => router.push(url as Href)), [router]);
 
   // Keep the "due tomorrow" reminder in step with the data whenever the app is opened.
   useEffect(() => {

@@ -38,6 +38,16 @@ const envSchema = z.object({
   API_RATE_LIMIT_MAX: z.coerce.number().int().min(1).default(300),
 
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
+
+  // "Due tomorrow" push reminders (Expo push service)
+  REMINDER_HOUR: z.coerce.number().int().min(0).max(23).default(18),
+  // Run the reminder check every 15 minutes inside this process. Hosts that sleep when idle
+  // (Render free tier) should call POST /api/jobs/due-reminders from a cron instead.
+  REMINDER_SCHEDULER: booleanFromString.default(true),
+  // Shared secret for POST /api/jobs/due-reminders. The endpoint is disabled when unset.
+  CRON_SECRET: z.string().min(16, 'CRON_SECRET must be at least 16 characters').optional(),
+  // Optional: only needed if "enhanced push security" is turned on for the Expo project.
+  EXPO_ACCESS_TOKEN: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

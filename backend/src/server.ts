@@ -2,6 +2,7 @@ import { createApp } from './app';
 import { env } from './config/env';
 import { logger } from './lib/logger';
 import { prisma } from './lib/prisma';
+import { startReminderScheduler } from './modules/notifications/reminders.service';
 
 async function main() {
   await prisma.$connect();
@@ -12,9 +13,12 @@ async function main() {
     logger.info(`CORS allowed origins: ${env.corsOrigins.join(', ') || '(none)'}`);
   });
 
+  const stopScheduler = env.REMINDER_SCHEDULER ? startReminderScheduler() : () => undefined;
+
   // Let in-flight requests finish and close DB connections when the platform stops the container.
   const shutdown = (signal: string) => {
     logger.info(`${signal} received, shutting down`);
+    stopScheduler();
     server.close(async () => {
       await prisma.$disconnect();
       process.exit(0);

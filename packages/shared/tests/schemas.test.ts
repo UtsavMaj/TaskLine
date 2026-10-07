@@ -7,6 +7,7 @@ import {
   isOverdue,
   isRealDate,
   loginSchema,
+  registerPushTokenSchema,
   registerSchema,
   taskListQuerySchema,
   toFieldErrors,
@@ -100,5 +101,24 @@ describe('helpers', () => {
     expect(isOverdue({ dueDate: '2026-01-01', status: 'PENDING' }, '2026-01-02')).toBe(true);
     expect(isOverdue({ dueDate: '2026-01-01', status: 'COMPLETED' }, '2026-01-02')).toBe(false);
     expect(isOverdue({ dueDate: null, status: 'PENDING' }, '2026-01-02')).toBe(false);
+  });
+});
+
+describe('push token schemas', () => {
+  it('accepts Expo tokens and a known time zone', () => {
+    expect(
+      registerPushTokenSchema.parse({ token: 'ExponentPushToken[abc_DEF-123]', timezone: 'Asia/Kolkata' }),
+    ).toEqual({
+      token: 'ExponentPushToken[abc_DEF-123]',
+      timezone: 'Asia/Kolkata',
+    });
+  });
+
+  it('defaults the time zone to UTC and rejects bad input', () => {
+    expect(registerPushTokenSchema.parse({ token: 'ExpoPushToken[x1]' }).timezone).toBe('UTC');
+    expect(registerPushTokenSchema.safeParse({ token: 'fcm:123' }).success).toBe(false);
+    expect(registerPushTokenSchema.safeParse({ token: 'ExpoPushToken[x1]', timezone: 'Nowhere/Land' }).success).toBe(
+      false,
+    );
   });
 });

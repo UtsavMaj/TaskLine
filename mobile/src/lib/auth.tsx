@@ -3,7 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 
 import { api, onSessionExpired, refreshSession, setAccessToken, storeSession } from './api';
 import { persister, queryClient } from './query';
-import { cancelReminders } from './reminders';
+import { resetReminders } from './reminders';
 import { secureStorage } from './secure-storage';
 
 type Status = 'loading' | 'authenticated' | 'anonymous';
@@ -28,7 +28,7 @@ async function wipeLocalSession() {
   await secureStorage.clear();
   queryClient.clear();
   await persister.removeClient();
-  await cancelReminders();
+  await resetReminders();
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {

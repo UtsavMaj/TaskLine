@@ -2,6 +2,8 @@
 
 PostgreSQL 14+ (tested on 16 and 18). The schema is defined in [`backend/prisma/schema.prisma`](../backend/prisma/schema.prisma) and created by the SQL migrations in [`backend/prisma/migrations`](../backend/prisma/migrations).
 
+The complete schema as one plain SQL file (tables, enums, indexes, foreign keys, CHECK constraints) is in **[`schema.sql`](schema.sql)**.
+
 ## ER diagram
 
 ```mermaid
@@ -10,6 +12,8 @@ erDiagram
     projects ||--o{ tasks : contains
     users ||--o{ sessions : "signed in on"
     users ||--o{ audit_logs : "acted"
+    users ||--o{ push_tokens : "gets reminders on"
+    sessions ||--o{ push_tokens : "registered by"
 
     users {
         uuid id PK
@@ -60,6 +64,17 @@ erDiagram
         timestamptz last_used_at
     }
 
+    push_tokens {
+        uuid id PK
+        uuid user_id FK "-> users.id, ON DELETE CASCADE"
+        uuid session_id FK "-> sessions.id, ON DELETE CASCADE"
+        varchar(255) token UK "ExponentPushToken[...]"
+        varchar(64) timezone "IANA zone of the phone"
+        date last_notified_on "local day of the last reminder"
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
     audit_logs {
         uuid id PK
         uuid user_id FK "-> users.id, ON DELETE CASCADE"
@@ -76,7 +91,7 @@ erDiagram
 ## Design notes
 
 - **Normalised (3NF).** A task doesn't store its owner. Ownership is held once, in `projects.user_id`, and every task query joins through the project (`WHERE project.user_id = $current_user`). A task can't end up "owned" by a different user than its project.
-- **Foreign keys with cascades.** Deleting a project deletes its tasks. Deleting a user deletes their projects, tasks, sessions and audit entries.
+- **Foreign keys with cascades.** Deleting a project deletes its tasks. Deleting a user deletes their projects, tasks, sessions, push tokens and audit entries.
 - **Enums are PostgreSQL enums.** `Role`, `ProjectStatus`, `TaskStatus` and `TaskPriority` are real DB types, so a bad value is rejected by the database as well as by the API. `TaskPriority` is declared low → high so `ORDER BY priority` sorts by importance.
 - **Calendar dates are `DATE`, not timestamps.** Start, end and due dates have no time zone, so a due date doesn't move when viewed from another time zone.
 - **CHECK constraints** (migration `integrity_checks`):
@@ -84,6 +99,7 @@ erDiagram
   - project and task names can't be blank
   - `tasks.completed_at` is set exactly when `status = 'COMPLETED'`
   - `users.email` is lower-case (so the unique index is effectively case-insensitive)
+- **Push tokens belong to a session.** A phone that opted in to reminders is tied to the sign-in that registered it. Signing out, or the session being revoked or expiring, stops reminders to that phone. `last_notified_on` holds the phone's *local* date, so each device gets at most one reminder per day, even if the job runs many times.
 - **Indexes** cover the hot paths: `projects(user_id, created_at)`, `projects(user_id, status)`, `tasks(project_id, status)`, `tasks(project_id, due_date)`, `sessions(user_id)`, `audit_logs(user_id, created_at)`, plus the unique index on `users.email`.
 - **No secrets in plain text.** Passwords are bcrypt hashes (cost 12). Refresh tokens are stored as SHA-256 hashes, so a database dump can't be used to sign in.
 

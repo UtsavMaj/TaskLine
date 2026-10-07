@@ -56,7 +56,11 @@ describe('apiRequest', () => {
       'fetch',
       vi.fn().mockResolvedValueOnce(
         json(400, {
-          error: { code: 'VALIDATION_ERROR', message: 'Check fields', details: [{ field: 'name', message: 'Required' }] },
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Check fields',
+            details: [{ field: 'name', message: 'Required' }],
+          },
         }),
       ),
     );

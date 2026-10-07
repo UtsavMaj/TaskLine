@@ -183,6 +183,8 @@ export async function logout(userId: string, sessionId: string, meta: ClientMeta
       where: { id: sessionId, userId, revokedAt: null },
       data: { revokedAt: new Date() },
     });
+    // This phone shouldn't keep getting reminders for an account that signed out of it.
+    await tx.pushToken.deleteMany({ where: { sessionId } });
     await recordAudit(tx, {
       userId,
       action: AUDIT_ACTIONS.USER_LOGGED_OUT,

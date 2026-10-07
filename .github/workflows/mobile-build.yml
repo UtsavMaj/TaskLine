@@ -1,0 +1,31 @@
+name: Android APK
+
+# Builds an installable APK on Expo's servers (EAS Build, "preview" profile in mobile/eas.json).
+# Run it from the Actions tab. Needs the repository secret EXPO_TOKEN
+# (expo.dev → Account settings → Access tokens) and a one-time `eas init` in mobile/.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Start EAS build
+        working-directory: mobile
+        run: eas build --platform android --profile preview --non-interactive --no-wait

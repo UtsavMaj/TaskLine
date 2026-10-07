@@ -7,6 +7,7 @@ The web app and the Android app call exactly these endpoints. There is no separa
 - Calendar dates (`startDate`, `endDate`, `dueDate`) are `YYYY-MM-DD` strings. Timestamps (`createdAt`, …) are ISO 8601 in UTC.
 - Protected endpoints need `Authorization: Bearer <accessToken>`.
 - Every response carries an `X-Request-Id` header, which is also written to the server log.
+- **Try it live:** Swagger UI at `/api/docs` (raw OpenAPI 3.1 document at `/api/openapi.json`). The request schemas there are generated from the same Zod schemas the API validates with.
 
 ## Authentication model
 
@@ -276,6 +277,31 @@ which also stamps `completedAt`. Moving it back to an open status clears `comple
 
 ---
 
+## Push notifications (protected)
+
+### `POST /push-tokens`
+
+Opts the calling phone in to "due tomorrow" reminders.
+
+```json
+{ "token": "ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]", "timezone": "Asia/Kolkata" }
+```
+
+`token` must be an Expo push token. `timezone` is an IANA zone and defaults to `UTC`. The token is linked to the current session, so signing out (or the session ending) stops reminders to that phone. If another account signs in on the same phone and registers, the token moves to that account.
+`204 No Content`. Errors: `400`, `401`.
+
+### `DELETE /push-tokens`
+
+Body `{ "token": "ExponentPushToken[…]" }`. Opts the phone out. `204 No Content`.
+
+### `POST /jobs/due-reminders` (cron only)
+
+Header `x-cron-secret: <CRON_SECRET>`. Sends due-tomorrow pushes to every phone where it's currently between `REMINDER_HOUR` (default 18:00) and 22:00 local time and that hasn't had one today. The API also runs this check itself every 15 minutes (`REMINDER_SCHEDULER=true`). The endpoint is for hosts that sleep when idle. It returns `404` when `CRON_SECRET` isn't configured.
+
+```json
+{ "checked": 12, "notified": 3, "removedTokens": 0 }
+```
+
 ## Extras
 
 | Endpoint                | Auth   | Description                                                                 |
@@ -283,6 +309,8 @@ which also stamps `completedAt`. Moving it back to an open status clears `comple
 | `GET /audit-logs`       | user   | The caller's own activity trail (sign-ins, creates, edits, deletes), paginated |
 | `GET /admin/users`      | ADMIN  | Paginated list of accounts with project counts. No access to other users' projects or tasks |
 | `GET /health`           | public | `{ "status": "ok" }` after a DB round-trip; used by Docker/Render health checks |
+| `GET /docs`             | public | Swagger UI                                                                  |
+| `GET /openapi.json`     | public | OpenAPI 3.1 document                                                        |
 
 ## Quick test with curl
 
