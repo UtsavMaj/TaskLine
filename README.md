@@ -9,11 +9,11 @@ A project and task manager with a **React web app** and an **Android app (Expo /
 | **Mobile** | Expo SDK 57 (React Native 0.86), Expo Router, expo-secure-store, NetInfo, TanStack Query (persisted for offline viewing) |
 | **Shared** | `packages/shared`: Zod schemas, enums and API types used by all three apps |
 
-Live links (fill in after deploying, see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)):
+Live links (deployment steps in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)):
 
 - Web app: https://task-line-omega.vercel.app
 - API: https://taskline-api-7gr3.onrender.com/api/health
-- Android APK: `https://expo.dev/…`
+- Android APK: https://expo.dev/accounts/utsavmajumdar/projects/taskline/builds/cddd4488-e2b3-4683-9e26-a7ecd6d5fc51
 - Interactive API docs: https://taskline-api-7gr3.onrender.com/api/docs
 
 | Web (dashboard) | Mobile (project) |
