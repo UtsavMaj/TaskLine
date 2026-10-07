@@ -1,0 +1,182 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.twoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+/* ---------- project list ---------- */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) 112px minmax(140px, 1fr) 200px;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 120ms ease;
+}
+.list li:last-child .row {
+  border-bottom: 0;
+}
+.row:hover {
+  background: var(--bg);
+}
+
+.rowTitle {
+  min-width: 0;
+}
+.rowTitle strong {
+  display: block;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rowTitle span {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--ink-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dates {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.progressCell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.progressCell small {
+  font-size: 0.75rem;
+  color: var(--ink-3);
+}
+
+.headRow {
+  composes: row;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  background: var(--surface-sunk);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+.headRow:hover {
+  background: var(--surface-sunk);
+}
+
+@media (max-width: 760px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'title status'
+      'progress progress'
+      'dates dates';
+    gap: 10px 14px;
+  }
+  .row > :nth-child(1) {
+    grid-area: title;
+  }
+  .row > :nth-child(2) {
+    grid-area: status;
+  }
+  .row > :nth-child(3) {
+    grid-area: progress;
+  }
+  .row > :nth-child(4) {
+    grid-area: dates;
+  }
+  .headRow {
+    display: none;
+  }
+  .twoCol {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- project detail header ---------- */
+.detailHead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 20px;
+  align-items: start;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  margin-top: 12px;
+  font-size: 0.88rem;
+  color: var(--ink-2);
+}
+.meta > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
+}
+.fact {
+  padding: 14px 20px;
+  border-right: 1px solid var(--line);
+}
+.fact:last-child {
+  border-right: 0;
+}
+.fact strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+}
+
+.description {
+  padding: 18px 20px;
+  color: var(--ink-2);
+  white-space: pre-wrap;
+}
+
+@media (max-width: 640px) {
+  .detailHead {
+    grid-template-columns: 1fr;
+  }
+  .facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .fact:nth-child(2) {
+    border-right: 0;
+  }
+  .fact:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--line);
+  }
+}

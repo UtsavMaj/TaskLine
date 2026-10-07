@@ -1,0 +1,230 @@
+.headerLink,
+.smallLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--accent);
+  font-weight: 500;
+  text-decoration: none;
+}
+.headerLink:hover,
+.smallLink:hover {
+  text-decoration: underline;
+}
+.smallLink {
+  font-size: 0.88rem;
+}
+
+/* The five required numbers sit in one ruled strip, like a ledger header. */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 20px 20px;
+  border-right: 1px solid var(--line);
+}
+.tile:last-child {
+  border-right: 0;
+}
+.tile strong {
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+.tile[data-tone='olive'] strong {
+  color: var(--olive);
+}
+.tile[data-tone='accent'] strong {
+  color: var(--accent);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.upcoming {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.upcoming li {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--line);
+}
+.upcoming li:last-child {
+  border-bottom: 0;
+}
+
+.dateChip {
+  padding: 6px 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--ink-2);
+}
+.dateChip[data-overdue='true'] {
+  border-color: var(--brick);
+  color: var(--brick);
+  background: var(--brick-soft);
+}
+
+.upcomingBody {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.upcomingBody strong {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.upcomingBody a {
+  font-size: 0.82rem;
+  color: var(--ink-3);
+  text-decoration: none;
+}
+.upcomingBody a:hover {
+  color: var(--accent);
+}
+.upcomingMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+}
+
+.rate strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 3rem;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.stack {
+  margin: 0;
+}
+.stackBar {
+  display: flex;
+  gap: 2px;
+  height: 12px;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 10px;
+  font-size: 0.82rem;
+  color: var(--ink-2);
+}
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.legend i {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+}
+.legend b {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.overdueNote {
+  padding: 10px 12px;
+  border-left: 3px solid var(--brick);
+  background: var(--brick-soft);
+  color: var(--brick);
+  font-size: 0.88rem;
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin: 0;
+}
+.dl dt {
+  margin-bottom: 6px;
+}
+.dl dd {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--line);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 1000px) {
+  .tiles {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .tile:nth-child(3) {
+    border-right: 0;
+  }
+  .tile:nth-child(-n + 3) {
+    border-bottom: 1px solid var(--line);
+  }
+  .columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .tile:nth-child(3) {
+    border-right: 1px solid var(--line);
+  }
+  .tile:nth-child(2n) {
+    border-right: 0;
+  }
+  .tile:nth-child(-n + 4) {
+    border-bottom: 1px solid var(--line);
+  }
+  .tile:last-child {
+    grid-column: 1 / -1;
+  }
+  .tile strong {
+    font-size: 2rem;
+  }
+  .upcoming li {
+    grid-template-columns: 56px minmax(0, 1fr);
+  }
+  .upcomingMeta {
+    grid-column: 2;
+  }
+}

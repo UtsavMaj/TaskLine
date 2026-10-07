@@ -1,0 +1,27 @@
+node_modules/
+dist/
+build/
+coverage/
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+
+# Expo
+mobile/.expo/
+mobile/android/
+mobile/ios/
+mobile/web-build/
+mobile/expo-env.d.ts
+*.apk
+*.aab
+*.jks
+*.keystore
+
+# local tooling
+.pgdata/
+.vscode/
+.idea/
+.localdb/

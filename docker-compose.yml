@@ -1,0 +1,49 @@
+# Full stack on one machine:  docker compose up --build
+#   web  -> http://localhost:8080
+#   api  -> http://localhost:4000/api   (also used by the mobile app on the same Wi-Fi)
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: taskline
+      POSTGRES_PASSWORD: taskline
+      POSTGRES_DB: taskline
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U taskline']
+      interval: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://taskline:taskline@db:5432/taskline?schema=public
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-local-docker-secret-change-me-please-0123456789}
+      CORS_ORIGINS: http://localhost:8080
+      COOKIE_SAMESITE: lax
+      COOKIE_SECURE: 'false' # plain http on localhost; keep the default (true) behind HTTPS
+      TRUST_PROXY: 1
+    ports:
+      - '4000:4000'
+
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    depends_on:
+      - api
+    ports:
+      - '8080:80'
+
+volumes:
+  pgdata:

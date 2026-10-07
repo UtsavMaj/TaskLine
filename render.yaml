@@ -1,0 +1,31 @@
+# Render Blueprint: creates the PostgreSQL database and the API service in one go.
+# Dashboard -> New -> Blueprint -> pick this repository.
+databases:
+  - name: taskline-db
+    plan: free
+    databaseName: taskline
+    user: taskline
+
+services:
+  - type: web
+    name: taskline-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: taskline-db
+          property: connectionString
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        sync: false # set to your web URL, e.g. https://taskline.vercel.app
+      - key: COOKIE_SAMESITE
+        value: lax # the web app proxies /api through vercel.json, so cookies are first-party
+      - key: TRUST_PROXY
+        value: '1' # Render's load balancer sits in front of the app

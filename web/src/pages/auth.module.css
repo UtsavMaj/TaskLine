@@ -1,0 +1,134 @@
+.wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  min-height: 100dvh;
+}
+
+.aside {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 40px;
+  padding: 40px clamp(24px, 5vw, 64px);
+  background: #1e1c18;
+  color: #f4f1ea;
+  overflow: hidden;
+}
+
+/* faint ruled paper lines */
+.aside::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 37px,
+    rgba(244, 241, 234, 0.06) 37px,
+    rgba(244, 241, 234, 0.06) 38px
+  );
+  pointer-events: none;
+}
+
+.aside > * {
+  position: relative;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.3rem;
+  letter-spacing: -0.03em;
+}
+
+.pitch h1 {
+  font-size: clamp(2rem, 1.4rem + 2.4vw, 3.2rem);
+  max-width: 14ch;
+  line-height: 1.05;
+}
+
+.pitch h1 em {
+  font-style: normal;
+  color: #e7774a;
+}
+
+.pitch p {
+  margin-top: 18px;
+  max-width: 40ch;
+  color: rgba(244, 241, 234, 0.7);
+}
+
+.ledger {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: rgba(244, 241, 234, 0.75);
+}
+.ledger li {
+  display: flex;
+  gap: 12px;
+  padding: 9px 0;
+  border-top: 1px solid rgba(244, 241, 234, 0.12);
+}
+.ledger li span:first-child {
+  color: #e7774a;
+}
+
+.formSide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.card {
+  width: min(400px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.card header p {
+  margin-top: 8px;
+  color: var(--ink-2);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.switch {
+  font-size: 0.9rem;
+  color: var(--ink-2);
+}
+.switch a {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+@media (max-width: 860px) {
+  .wrap {
+    grid-template-columns: 1fr;
+  }
+  .aside {
+    padding: 28px 20px;
+    gap: 20px;
+  }
+  .ledger {
+    display: none;
+  }
+  .pitch h1 {
+    font-size: 1.8rem;
+  }
+  .pitch p {
+    display: none;
+  }
+}

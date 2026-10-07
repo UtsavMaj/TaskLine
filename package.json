@@ -1,0 +1,31 @@
+{
+  "name": "taskline",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Taskline - project & task management for web and Android, backed by one Express + PostgreSQL API.",
+  "author": "Utsav Majumdar (RA2311056010143)",
+  "license": "MIT",
+  "workspaces": [
+    "packages/shared",
+    "backend",
+    "web",
+    "mobile"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w backend",
+    "dev:web": "npm run dev -w web",
+    "dev:mobile": "npm run start -w mobile",
+    "db:migrate": "npm run db:migrate -w backend",
+    "db:seed": "npm run db:seed -w backend",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "build": "npm run build -w backend && npm run build -w web"
+  },
+  "overrides": {
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
+  },
+  "engines": {
+    "node": ">=20.19"
+  }
+}

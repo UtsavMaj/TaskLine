@@ -1,0 +1,227 @@
+/*
+ * Taskline design tokens.
+ * Warm paper + ink, one terracotta accent. Status colours are earthy on purpose
+ * (olive = done, ochre = moving, stone = not started) so they read as a set.
+ * -- Utsav Majumdar, RA2311056010143
+ */
+
+:root {
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Bricolage Grotesque', 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  --bg: #f4f1ea;
+  --surface: #fbfaf6;
+  --surface-sunk: #ece8df;
+  --line: #ddd7ca;
+  --line-strong: #c9c1b1;
+
+  --ink: #1e1c18;
+  --ink-2: #57524a;
+  --ink-3: #8a8478;
+
+  --accent: #c8552b;
+  --accent-hover: #ad4520;
+  --accent-soft: #f5e1d6;
+  --accent-ink: #fffaf5;
+
+  --olive: #55703c;
+  --olive-soft: #e3ead8;
+  --ochre: #a87613;
+  --ochre-soft: #f3e7cb;
+  --stone: #6f6a60;
+  --stone-soft: #e6e2d9;
+  --brick: #a8382c;
+  --brick-soft: #f4dcd7;
+
+  --focus: 0 0 0 3px rgba(200, 85, 43, 0.28);
+  --radius: 6px;
+  --radius-lg: 10px;
+  --shadow-pop: 0 18px 40px -18px rgba(30, 28, 24, 0.35), 0 2px 6px rgba(30, 28, 24, 0.08);
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #151412;
+    --surface: #1d1c19;
+    --surface-sunk: #24221e;
+    --line: #34312b;
+    --line-strong: #4a463e;
+
+    --ink: #eee9df;
+    --ink-2: #b9b2a5;
+    --ink-3: #857e72;
+
+    --accent: #e06a3c;
+    --accent-hover: #ec7d51;
+    --accent-soft: #3a241a;
+    --accent-ink: #1a0e08;
+
+    --olive: #9cbb78;
+    --olive-soft: #263020;
+    --ochre: #dcae52;
+    --ochre-soft: #352b16;
+    --stone: #aaa396;
+    --stone-soft: #2b2925;
+    --brick: #e4796b;
+    --brick-soft: #3a201c;
+
+    --shadow-pop: 0 18px 40px -18px rgba(0, 0, 0, 0.7), 0 2px 6px rgba(0, 0, 0, 0.4);
+    color-scheme: dark;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.2rem);
+}
+h2 {
+  font-size: 1.2rem;
+}
+h3 {
+  font-size: 1rem;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-feature-settings: 'zero' 1;
+}
+
+.muted {
+  color: var(--ink-2);
+}
+
+.faint {
+  color: var(--ink-3);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* small uppercase label used above sections and in tables */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 36px clamp(16px, 4vw, 48px) 64px;
+  max-width: 1180px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.page-header .lede {
+  margin-top: 6px;
+  color: var(--ink-2);
+  max-width: 60ch;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.toolbar > .grow {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

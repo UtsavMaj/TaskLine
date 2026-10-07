@@ -1,0 +1,9 @@
+**/node_modules
+**/dist
+**/.env
+**/.expo
+mobile/*
+!mobile/package.json
+.git
+.localdb
+coverage

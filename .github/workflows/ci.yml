@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: taskline
+          POSTGRES_PASSWORD: taskline
+          POSTGRES_DB: taskline_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U taskline"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      TEST_DATABASE_URL: postgresql://taskline:taskline@localhost:5432/taskline_test?schema=public
+      DATABASE_URL: postgresql://taskline:taskline@localhost:5432/taskline_test?schema=public
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck (shared, backend, web, mobile)
+        run: npm run typecheck
+
+      - name: Shared schema tests
+        run: npm test -w packages/shared
+
+      - name: API integration tests (real PostgreSQL)
+        run: npm test -w backend
+
+      - name: Web component tests
+        run: npm test -w web
+
+      - name: Build API and web
+        run: npm run build
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build API image
+        run: docker build -f backend/Dockerfile -t taskline-api .
+      - name: Build web image
+        run: docker build -f web/Dockerfile -t taskline-web .

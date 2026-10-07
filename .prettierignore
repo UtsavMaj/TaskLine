@@ -1,0 +1,8 @@
+node_modules
+dist
+coverage
+.expo
+.localdb
+package-lock.json
+backend/prisma/migrations
+*.md
